@@ -1,26 +1,31 @@
 import axios from "axios";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-//BIGRjafO5bPhOTmm
+
 const RegisterPage = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-function registerUser(ev){
+  async function registerUser(ev) {
     ev.preventDefault();
-    axios.post('/register',{
+    try {
+      await axios.post("/register", {
         name,
         email,
         password,
-    })
-}
+      });
+      alert("Registration succesfull. Now you can log in!");
+    } catch  {
+      alert("Registration failed. Please try again!")
+    }
+  }
 
   return (
     <div className="mt-4 grow flex items-center justify-around">
       <div className="mb-64">
         <h1 className="text-4xl text-center mb-4">Register</h1>
-        <form className="max-w-md mx-auto" action=""onSubmit={registerUser} >
+        <form className="max-w-md mx-auto" action="" onSubmit={registerUser}>
           <input
             type="text"
             placeholder="John Doe"
@@ -45,7 +50,7 @@ function registerUser(ev){
           />
           <button className="prim">Register</button>
           <div className="text-center py-2 text-gray-500">
-            Already a member?{" "} 
+            Already a member?{" "}
             <Link className="underline text-black" to={"/login"}>
               Login
             </Link>

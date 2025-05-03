@@ -6,6 +6,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const app = express();
 const User = require("./models/User.js");
+const cookieParser = require("cookie-parser");
 
 const bcryptSalt = bcrypt.genSaltSync(10);
 const jwtSecret = "gdhsjdvedhwjjdbdehewj";
@@ -17,7 +18,7 @@ app.use(
     origin: "http://localhost:5173",
   })
 );
-
+app.use(cookieParser());
 async function connectMongo() {
   try {
     await mongoose.connect(process.env.MONGO_URI);
@@ -54,12 +55,12 @@ app.post("/login", async (req, res) => {
     const passOk = bcrypt.compareSync(password, userDoc.password);
     if (passOk) {
       jwt.sign(
-        { email: userDoc.email, id: userDoc._id },
+        { email: userDoc.email, id: userDoc._id},
         jwtSecret,
         {},
         (err, token) => {
           if (err) throw err;
-          res.cookie("token", token).json("pass ok");
+          res.cookie("token", token).json(userDoc);
         }
       );
     } else {
@@ -68,4 +69,18 @@ app.post("/login", async (req, res) => {
   } else {
     res.json("not found");
   }
+});
+
+app.get("/profile", (req, res) => {
+  const { token } = req.cookies;
+  if (token) {
+    jwt.verify(token, jwtSecret, {}, async(err, userData) => {
+      if (err) throw err;
+      const {name,email, _id}= await User.findById(userData.id)
+      res.json({name, email, _id});
+    });
+  } else {
+    res.json(null);
+  }
+  
 });

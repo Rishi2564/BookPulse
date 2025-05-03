@@ -25,7 +25,7 @@ const LoginPage = () => {
   return (
     <div className="mt-4 grow flex items-center justify-around">
       <div className="mb-64">
-        <h1 className="text-4xl text-center mb-4">Login</h1>
+        <h1 className="text-4xl text-center mb-4 font-weight-300"><i>Login</i></h1>
         <form
           className="max-w-md mx-auto"
           action=""
@@ -36,6 +36,7 @@ const LoginPage = () => {
             placeholder="your@email.com"
             name=""
             id=""
+            className="w-full mb-4 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
             value={email}
             onChange={(ev) => setEmail(ev.target.value)}
           />
@@ -44,6 +45,7 @@ const LoginPage = () => {
             placeholder="password"
             name=""
             id=""
+            className="w-full mb-4 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
             value={password}
             onChange={(ev) => setPassword(ev.target.value)}
           />

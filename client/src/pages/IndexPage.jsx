@@ -1,9 +1,5 @@
-
-
 const IndexPage = () => {
-  return (
-   "Index page here"
-  )
-}
+  return "Index page here";
+};
 
-export default IndexPage
+export default IndexPage;

@@ -1,25 +1,33 @@
 import axios from "axios";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  async function handleLoginSubmit(ev){
+  const [redirect, setRedirect] = useState("");
+  async function handleLoginSubmit(ev) {
     ev.preventDefault();
-    try{
-      await axios.post("/login",{email,password});
-      alert("login successful")
-    }catch(e){
-      alert("Login failed")
+    try {
+      await axios.post("/login", { email, password });
+      alert("login successful");
+      setRedirect(true);
+    } catch (e) {
+      alert("Login failed");
     }
-    
+  }
+  if (redirect) {
+    return <Navigate to={"/"} />;
   }
   return (
     <div className="mt-4 grow flex items-center justify-around">
       <div className="mb-64">
         <h1 className="text-4xl text-center mb-4">Login</h1>
-        <form className="max-w-md mx-auto" action="" onSubmit={handleLoginSubmit}>
+        <form
+          className="max-w-md mx-auto"
+          action=""
+          onSubmit={handleLoginSubmit}
+        >
           <input
             type="email"
             placeholder="your@email.com"

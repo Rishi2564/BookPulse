@@ -8,10 +8,11 @@ const app = express();
 const User = require("./models/User.js");
 const imageDownloader = require("image-downloader");
 const cookieParser = require("cookie-parser");
-const path=require("path");
-
+const path = require("path");
+const multer= require("multer")
 const bcryptSalt = bcrypt.genSaltSync(10);
 const jwtSecret = "gdhsjdvedhwjjdbdehewj";
+const fs=require("fs")
 
 app.use(express.json());
 app.use(
@@ -116,3 +117,17 @@ app.post("/upload-by-link", async (req, res) => {
     res.status(400).json({ error: "Image download failed. Check the link." });
   }
 });
+const photosMiddleware= multer({dest:'uploads/'});
+app.post('/upload',photosMiddleware.array('photos',100) ,(req,res)=>{
+  const uploadedFiles=[];
+  for(let i=0;i<req.files.length;i++){
+     const {path, originalname}=req.files[i];
+     const parts=originalname.split('.');
+     const ext=parts[parts.length-1];
+     const newPath=path+'.'+ext;
+     fs.renameSync(path,newPath);
+     uploadedFiles.push(newPath.replace('uploads\\',''));
+  }
+  res.json(uploadedFiles);
+
+})

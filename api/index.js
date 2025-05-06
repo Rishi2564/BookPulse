@@ -6,8 +6,9 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const app = express();
 const User = require("./models/User.js");
-const imageDownloader= require("image-downloader");
+const imageDownloader = require("image-downloader");
 const cookieParser = require("cookie-parser");
+const path=require("path");
 
 const bcryptSalt = bcrypt.genSaltSync(10);
 const jwtSecret = "gdhsjdvedhwjjdbdehewj";
@@ -20,6 +21,7 @@ app.use(
   })
 );
 app.use(cookieParser());
+app.use("/uploads", express.static(__dirname + "/uploads"));
 async function connectMongo() {
   try {
     await mongoose.connect(process.env.MONGO_URI);
@@ -88,16 +90,29 @@ app.get("/profile", (req, res) => {
   }
 });
 
-app.post('/logout',(req,res)=>{
-  res.cookie('token','').json(true);
+app.post("/logout", (req, res) => {
+  res.cookie("token", "").json(true);
 });
 
-app.post("/upload-by-link",async(req,res)=>{
+app.post("/upload-by-link", async (req, res) => {
   const { link } = req.body;
-  const newName= 'photo'+Date.now()+'.jpg'
-  await imageDownloader.image({
-    url:link,
-    dest:__dirname+'/uploads/'+newName,
-  });
-res.json(__dirname+'/uploads/'+newName)
-})
+
+  if (!link || typeof link !== "string") {
+    return res.status(400).json({ error: "Invalid or missing image link" });
+  }
+
+  try {
+    const ext = path.extname(new URL(link).pathname).split("?")[0] || ".jpg";
+    const newName = "photo" + Date.now() + ext;
+
+    await imageDownloader.image({
+      url: link,
+      dest: __dirname + "/uploads/" + newName,
+    });
+
+    res.json(newName);
+  } catch (error) {
+    console.error("Image download failed:", error.message);
+    res.status(400).json({ error: "Image download failed. Check the link." });
+  }
+});

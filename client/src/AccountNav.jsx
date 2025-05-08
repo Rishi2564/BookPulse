@@ -1,44 +1,24 @@
-import { useContext, useState } from "react";
-import { UserContext } from "../UserContext";
-import { Link, Navigate, useParams } from "react-router-dom";
-import axios from "axios";
-import PlacesPage from "./PlacesPage";
 
-const AccountPage = () => {
-  const { ready, user, setUser } = useContext(UserContext);
-  const [redirect, setRedirect] = useState(null);
-  let { subpage } = useParams();
-  if (subpage === undefined) {
-    subpage = "profile";
-  }
-  async function logout() {
-    await axios.post("/logout");
-    setRedirect("/");
-    setUser(null);
-  }
-  if (!ready) {
-    return "Loading...";
-  }
-  if (ready && !user && !redirect) {
-    return <Navigate to={"/login"} />;
-  }
+import { Link, Navigate, useLocation, } from "react-router-dom";
 
-  function linkClasses(type = null) {
-    let classes = "inline-flex gap-1 py-2 px-6 rounded-full";
-    if (type === subpage) {
-      classes += " primary text-white ";
-    }else{
-      classes += ' bg-gray-200';
-    }
-    return classes;
-  }
-  if (redirect) {
-    return <Navigate to={redirect} />;
-  }
-
+const AccountNav = () => {
+    const {pathname}= useLocation();
+    let subpage=pathname.split('/')?.[2];
+    function linkClasses(type = null) {
+        let classes = "inline-flex gap-1 py-2 px-6 rounded-full";
+        if(subpage===undefined){
+            subpage="profile";
+        }
+        if (type === subpage) {
+          classes += " primary text-white ";
+        }else{
+          classes += ' bg-gray-200';
+        }
+        return classes;
+      }
+      
   return (
-    <div>
-      <nav className="w-full flex mt-30 gap-4 justify-center mb-8">
+    <nav className="w-full flex mt-30 gap-4 justify-center mb-8">
         <Link className={linkClasses("profile")} to={"/account"}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -91,17 +71,7 @@ const AccountPage = () => {
           My Accomodations
         </Link>
       </nav>
-      {subpage === "profile" && (
-        <div className="text-center max-w-lg mx-auto">
-          Logged in as {user.name} ({user.email}) <br /> <br />
-          <button onClick={logout} className="primary px-5 py-1 rounded-full">
-            Logout
-          </button>
-        </div>
-      )}
-      {subpage === "places" && <PlacesPage />}
-    </div>
-  );
-};
+  )
+}
 
-export default AccountPage;
+export default AccountNav

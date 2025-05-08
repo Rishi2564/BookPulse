@@ -6,6 +6,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const app = express();
 const User = require("./models/User.js");
+const Place= require("./models/Place.js")
 const imageDownloader = require("image-downloader");
 const cookieParser = require("cookie-parser");
 const path = require("path");
@@ -130,4 +131,34 @@ app.post('/upload',photosMiddleware.array('photos',100) ,(req,res)=>{
   }
   res.json(uploadedFiles);
 
-})
+});
+
+app.post('/places', (req, res) => {
+  const { token } = req.cookies;
+  const { title, address, addedPhotos, description, perks, extraInfo, checkIn, checkOut, maxGuests } = req.body;
+
+  jwt.verify(token, jwtSecret, {}, async (err, userData) => {
+    if (err) {
+      return res.status(401).json({ error: 'Invalid or missing token' });
+    }
+
+    try {
+      const placeDoc = await Place.create({
+        owner: userData.id,
+        title,
+        address,
+        photos: addedPhotos,
+        description,
+        perks,
+        extraInfo,
+        checkIn,
+        checkOut,
+        maxGuests,
+      });
+
+      res.status(200).json(placeDoc);
+    } catch (e) {
+      res.status(500).json({ error: 'Could not create place', details: e.message });
+    }
+  });
+});

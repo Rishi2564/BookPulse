@@ -33,6 +33,10 @@ const PhotosUploader = ({ addedPhotos, onChange }) => {
         });
       });
   }
+
+  function removePhoto(filename){
+    onChange([...addedPhotos.filter(photo=>photo!== filename)])
+  }
   return (
     <div>
       <div className="flex gap-2">
@@ -61,7 +65,7 @@ const PhotosUploader = ({ addedPhotos, onChange }) => {
                 src={"http://localhost:4000/uploads/" + link}
                 alt=""
               />
-              <button onClick={()=>removePhoto} className="cursor-pointer absolute bottom-1 right-1 text-white bg-black/50 rounded-2xl py-2 px-3">
+              <button onClick={()=>removePhoto(link)} className="cursor-pointer absolute bottom-1 right-1 text-white bg-black/50 rounded-2xl py-2 px-3">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"

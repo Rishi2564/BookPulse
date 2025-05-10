@@ -1,12 +1,13 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
-import { Link, Navigate } from "react-router-dom";
+import { Link, Navigate, useParams } from "react-router-dom";
 import Perks from "../Perks";
 import PhotosUploader from "../PhotosUploader";
 import axios from "axios";
 import AccountNav from "../AccountNav";
 
 const PlacesFormPage = () => {
+  const { id } = useParams();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [address, setAddress] = useState("");
@@ -17,6 +18,25 @@ const PlacesFormPage = () => {
   const [addedPhotos, setAddedPhotos] = useState([]);
   const [maxGuests, setMaxGuests] = useState(1);
   const [redirect, setRedirect] = useState(false);
+
+  useEffect(() => {
+    if (!id) {
+      return;
+    }
+    axios.get("/places/" + id)
+    .then(response =>{
+      const {data}= response;
+      setTitle(data.title);
+      setAddress(data.address);
+      setAddedPhotos(data.photos);
+      setDescription(data.description);
+      setPerks(data.perks);
+      setExtraInfo(data.extraInfo);
+      setCheckIn(data.checkIn);
+      setCheckOut(data.checkOut);
+      setMaxGuests(data.maxGuests);
+    });
+  }, [id]);
 
   function inputHeader(text) {
     return <h2 className="text-2xl mt-4">{text}</h2>;
@@ -35,11 +55,9 @@ const PlacesFormPage = () => {
     );
   }
 
-  async function addNewPlace(ev) {
+  async function savePlace(ev) {
     ev.preventDefault();
-
-    await axios.post("/places", {
-      title,
+    const placeData={  title,
       address,
       addedPhotos,
       description,
@@ -47,9 +65,22 @@ const PlacesFormPage = () => {
       extraInfo,
       checkIn,
       checkOut,
-      maxGuests,
+      maxGuests,}
+    if(id){
+      //update
+      axios.put('/places',{
+      id,...placeData
+      });
+      setRedirect(true);
+    }else{
+      //create
+       await axios.post("/places", {
+       ...placeData
     });
-    setRedirect(true);
+
+   setRedirect(true);
+    };
+    
   }
   if (redirect) {
     return <Navigate to={"/account/places"} />;
@@ -58,7 +89,7 @@ const PlacesFormPage = () => {
   return (
     <div>
       <AccountNav />
-      <form onSubmit={addNewPlace} action="" className="mx-28">
+      <form onSubmit={savePlace} action="" className="mx-28">
         {preInput(
           "Title",
           "Title for your place, should be short and catchy as in advertisement"

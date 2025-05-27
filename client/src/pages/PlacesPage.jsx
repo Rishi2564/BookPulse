@@ -38,7 +38,7 @@ const PlacesPage = () => {
             Add new places
           </Link>
         </div>
-        <div className="mt-4">
+        <div className="mt-4 gap-y-1">
           {places.length>0 && places.map(place=>(
             <Link to={'/account/places/'+place._id} className="flex gap-4 cursor-pointer bg-gray-100 p-4 rounded-2xl">
              <div className="flex w-31 h-32 bg-gray-300 grow shrink-0">

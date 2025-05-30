@@ -7,6 +7,7 @@ const jwt = require("jsonwebtoken");
 const app = express();
 const User = require("./models/User.js");
 const Place = require("./models/Place.js");
+const Booking = require("./models/Booking.js");
 const imageDownloader = require("image-downloader");
 const cookieParser = require("cookie-parser");
 const path = require("path");
@@ -227,6 +228,22 @@ app.put("/places", async (req, res) => {
   });
 });
 
-app.get('/places',async (req,res)=>{
+app.get("/places", async (req, res) => {
   res.json(await Place.find());
-})
+});
+
+app.post("/bookings", (req, res) => {
+  const { place, checkIn, checkOut, numberOfGuests, name, phone } = req.body;
+  Booking.create({
+    place,
+    checkIn,
+    checkOut,
+    numberOfGuests,
+    name,
+    phone,
+  }).then((doc) => {
+    res.json(doc);
+  }).catch((err)=>{
+    throw err;
+  });
+});

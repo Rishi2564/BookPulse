@@ -22,7 +22,7 @@ const PlacePage = () => {
       <div className="fixed inset-0 bg-black text-white min-h-screen overflow-y-scroll z-50">
         <div className="p-8 grid gap-4">
           <div className="relative">
-            <h2 className="text-3xl mb-4 mr-36">Photos of {place.title}</h2>
+            <h2 className="text-3xl mb-4 mr-48">Photos of {place.title}</h2>
             <button
               onClick={() => setShowAllPhotos(false)}
               className="flex gap-1 items-center text-black bg-white hover:bg-gray-700 px-4 py-2 rounded-full fixed right-8 top-8 shadow shadow-black z-50"

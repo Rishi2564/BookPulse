@@ -232,18 +232,36 @@ app.get("/places", async (req, res) => {
   res.json(await Place.find());
 });
 
-app.post("/bookings", (req, res) => {
-  const { place, checkIn, checkOut, numberOfGuests, name, phone } = req.body;
-  Booking.create({
+app.post("/bookings", async(req, res) => {
+  const userData=await getUserDataFromReq(req);
+  const { place, checkIn, checkOut, numberOfGuests, name, phone, price } = req.body;
+  await Booking.create({
     place,
     checkIn,
     checkOut,
     numberOfGuests,
     name,
     phone,
-  }).then((doc) => {
-    res.json(doc);
-  }).catch((err)=>{
-    throw err;
+    price,
+    user:userData.id,
+
+  })
+    .then((doc) => {
+      res.json(doc);
+    })
+    .catch((err) => {
+      throw err;
+    });
+});
+function getUserDataFromReq(req) {
+  return new Promise((resolve, reject) => {
+    jwt.verify(req.cookies.token, jwtSecret, {}, async (err, userData) => {
+      if (err) throw err;
+      resolve(userData);
+    });
   });
+}
+app.get("/bookings", async(req, res) => {
+  const userData= await getUserDataFromReq(req);
+  res.json(await Booking.find({user:userData.id}).populate('place'))
 });

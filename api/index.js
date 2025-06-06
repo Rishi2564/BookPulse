@@ -232,36 +232,56 @@ app.get("/api/places", async (req, res) => {
   res.json(await Place.find());
 });
 
-app.post("/api/bookings", async(req, res) => {
-  const userData=await getUserDataFromReq(req);
-  const { place, checkIn, checkOut, numberOfGuests, name, phone, price } = req.body;
-  await Booking.create({
-    place,
-    checkIn,
-    checkOut,
-    numberOfGuests,
-    name,
-    phone,
-    price,
-    user:userData.id,
+app.post("/api/bookings", async (req, res) => {
+  try {
+    const userData = await getUserDataFromReq(req);
+    const { place, checkIn, checkOut, numberOfGuests, name, phone, price } = req.body;
 
-  })
-    .then((doc) => {
-      res.json(doc);
-    })
-    .catch((err) => {
-      throw err;
+    if (!userData) {
+      return res.status(401).json({ error: "Unauthorized, token missing or invalid" });
+    }
+
+    const bookingDoc = await Booking.create({
+      place,
+      checkIn,
+      checkOut,
+      numberOfGuests,
+      name,
+      phone,
+      price,
+      user: userData.id,
     });
+
+    res.json(bookingDoc);
+  } catch (err) {
+    console.error("Booking creation failed:", err.message);
+    res.status(500).json({ error: "Could not create booking" });
+  }
 });
+
 function getUserDataFromReq(req) {
   return new Promise((resolve, reject) => {
-    jwt.verify(req.cookies.token, jwtSecret, {}, async (err, userData) => {
-      if (err) throw err;
+    const token = req.cookies.token;
+    if (!token) {
+      // No token provided — reject gracefully or resolve null
+      return reject(new Error("No token provided"));
+    }
+    jwt.verify(token, jwtSecret, {}, (err, userData) => {
+      if (err) return reject(err);
       resolve(userData);
     });
   });
 }
-app.get("/api/bookings", async(req, res) => {
-  const userData= await getUserDataFromReq(req);
-  res.json(await Booking.find({user:userData.id}).populate('place'))
+app.get("/api/bookings", async (req, res) => {
+  try {
+    const userData = await getUserDataFromReq(req);
+    if (!userData) {
+      return res.status(401).json({ error: "Unauthorized, token missing or invalid" });
+    }
+    const bookings = await Booking.find({ user: userData.id }).populate("place");
+    res.json(bookings);
+  } catch (err) {
+    console.error("Fetching bookings failed:", err.message);
+    res.status(500).json({ error: "Could not fetch bookings" });
+  }
 });

@@ -23,22 +23,33 @@ const BookingWidget = ({ place }) => {
       new Date(checkIn)
     );
   }
-  async function bookThisPlace() {
-    const response = await axios.post("/bookings", {
-      checkIn,
-      checkOut,
-      numberOfGuests,
-      name,
-      phone,
-      place: place._id,
-      price: numberOfNights * place.price,
-    });
-    const bookingId= response.data._id;
+ async function bookThisPlace() {
+  try {
+    const response = await axios.post(
+      "/bookings",
+      {
+        checkIn,
+        checkOut,
+        numberOfGuests,
+        name,
+        phone,
+        place: place._id,
+        price: numberOfNights * place.price,
+      },
+      { withCredentials: true }  // <-- This line makes the cookie travel with the request
+    );
+    const bookingId = response.data._id;
     setRedirect(`/account/bookings/${bookingId}`);
+  } catch (error) {
+    console.error("Booking failed:", error);
+    // Optional: show error UI to user
   }
-  if(redirect){
-    return (<Navigate to={redirect} />);
-  }
+}
+
+if (redirect) {
+  return <Navigate to={redirect} />;
+}
+
 
   return (
     <div className="bg-white shadow p-4 rounded-2xl">

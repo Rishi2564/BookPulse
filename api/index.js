@@ -17,12 +17,16 @@ const jwtSecret = "gdhsjdvedhwjjdbdehewj";
 const fs = require("fs");
 const allowedOrigins = ['https://bookpulse-hk91.onrender.com/','http://localhost:5173'];
 app.use(express.json());
-app.use(
-  cors({
-    credentials: true,
-    origin: allowedOrigins,
-  })
-);
+app.use(cors({
+  credentials: true,
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS: " + origin));
+    }
+  },
+}));
 app.use(cookieParser());
 app.use("/uploads", express.static(__dirname + "/uploads"));
 async function connectMongo() {

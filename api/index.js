@@ -15,7 +15,7 @@ const multer = require("multer");
 const bcryptSalt = bcrypt.genSaltSync(10);
 const jwtSecret = "gdhsjdvedhwjjdbdehewj";
 const fs = require("fs");
-const allowedOrigins = ['https://bookpulse-hk91.onrender.com/','http://localhost:5173'];
+const allowedOrigins = ['https://bookpulse-hk91.onrender.com','http://localhost:5173'];
 app.use(express.json());
 app.use(cors({
   credentials: true,
@@ -236,56 +236,34 @@ app.get("/api/places", async (req, res) => {
   res.json(await Place.find());
 });
 
-app.post("/api/bookings", async (req, res) => {
-  try {
-    const userData = await getUserDataFromReq(req);
-    const { place, checkIn, checkOut, numberOfGuests, name, phone, price } = req.body;
-
-    if (!userData) {
-      return res.status(401).json({ error: "Unauthorized, token missing or invalid" });
-    }
-
-    const bookingDoc = await Booking.create({
-      place,
-      checkIn,
-      checkOut,
-      numberOfGuests,
-      name,
-      phone,
-      price,
-      user: userData.id,
-    });
-
-    res.json(bookingDoc);
-  } catch (err) {
-    console.error("Booking creation failed:", err.message);
-    res.status(500).json({ error: "Could not create booking" });
-  }
+app.post('/api/bookings', async (req, res) => {
+  mongoose.connect(process.env.MONGO_URI);
+  const userData = await getUserDataFromReq(req);
+  const {
+    place,checkIn,checkOut,numberOfGuests,name,phone,price,
+  } = req.body;
+  Booking.create({
+    place,checkIn,checkOut,numberOfGuests,name,phone,price,
+    user:userData.id,
+  }).then((doc) => {
+    res.json(doc);
+  }).catch((err) => {
+    throw err;
+  });
 });
 
 function getUserDataFromReq(req) {
   return new Promise((resolve, reject) => {
-    const token = req.cookies.token;
-    if (!token) {
-      // No token provided — reject gracefully or resolve null
-      return reject(new Error("No token provided"));
-    }
-    jwt.verify(token, jwtSecret, {}, (err, userData) => {
-      if (err) return reject(err);
+    jwt.verify(req.cookies.token, jwtSecret, {}, async (err, userData) => {
+      if (err) throw err;
       resolve(userData);
     });
   });
 }
-app.get("/api/bookings", async (req, res) => {
-  try {
-    const userData = await getUserDataFromReq(req);
-    if (!userData) {
-      return res.status(401).json({ error: "Unauthorized, token missing or invalid" });
-    }
-    const bookings = await Booking.find({ user: userData.id }).populate("place");
-    res.json(bookings);
-  } catch (err) {
-    console.error("Fetching bookings failed:", err.message);
-    res.status(500).json({ error: "Could not fetch bookings" });
-  }
+app.get('/api/bookings', async (req,res) => {
+  mongoose.connect(process.env.MONGO_URI);
+  const userData = await getUserDataFromReq(req);
+  res.json( await Booking.find({user:userData.id}).populate('place') );
 });
+
+app.listen(4000);

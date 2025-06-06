@@ -15,7 +15,7 @@ const multer = require("multer");
 const bcryptSalt = bcrypt.genSaltSync(10);
 const jwtSecret = "gdhsjdvedhwjjdbdehewj";
 const fs = require("fs");
-const allowedOrigins = ['https://book-pulse.vercel.app','http://localhost:5173'];
+const allowedOrigins = ['https://bookpulse-hk91.onrender.com/','http://localhost:5173'];
 app.use(express.json());
 app.use(
   cors({

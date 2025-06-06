@@ -15,18 +15,23 @@ const multer = require("multer");
 const bcryptSalt = bcrypt.genSaltSync(10);
 const jwtSecret = "gdhsjdvedhwjjdbdehewj";
 const fs = require("fs");
-const allowedOrigins = ['https://bookpulse-hk91.onrender.com','http://localhost:5173'];
+const allowedOrigins = [
+  "https://bookpulse-hk91.onrender.com",
+  "http://localhost:5173",
+];
 app.use(express.json());
-app.use(cors({
-  credentials: true,
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS: " + origin));
-    }
-  },
-}));
+app.use(
+  cors({
+    credentials: true,
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS: " + origin));
+      }
+    },
+  })
+);
 app.use(cookieParser());
 app.use("/uploads", express.static(__dirname + "/uploads"));
 async function connectMongo() {
@@ -73,7 +78,13 @@ app.post("/api/login", async (req, res) => {
         {},
         (err, token) => {
           if (err) throw err;
-          res.cookie("token", token).json(userDoc);
+          res
+            .cookie("token", token, {
+              httpOnly: true,
+              secure: true, // Important for HTTPS (Render)
+              sameSite: "None", // Required for cross-origin cookie sharing
+            })
+            .json(userDoc);
         }
       );
     } else {
@@ -236,20 +247,27 @@ app.get("/api/places", async (req, res) => {
   res.json(await Place.find());
 });
 
-app.post('/api/bookings', async (req, res) => {
+app.post("/api/bookings", async (req, res) => {
   mongoose.connect(process.env.MONGO_URI);
   const userData = await getUserDataFromReq(req);
-  const {
-    place,checkIn,checkOut,numberOfGuests,name,phone,price,
-  } = req.body;
+  const { place, checkIn, checkOut, numberOfGuests, name, phone, price } =
+    req.body;
   Booking.create({
-    place,checkIn,checkOut,numberOfGuests,name,phone,price,
-    user:userData.id,
-  }).then((doc) => {
-    res.json(doc);
-  }).catch((err) => {
-    throw err;
-  });
+    place,
+    checkIn,
+    checkOut,
+    numberOfGuests,
+    name,
+    phone,
+    price,
+    user: userData.id,
+  })
+    .then((doc) => {
+      res.json(doc);
+    })
+    .catch((err) => {
+      throw err;
+    });
 });
 
 function getUserDataFromReq(req) {
@@ -260,10 +278,10 @@ function getUserDataFromReq(req) {
     });
   });
 }
-app.get('/api/bookings', async (req,res) => {
+app.get("/api/bookings", async (req, res) => {
   mongoose.connect(process.env.MONGO_URI);
   const userData = await getUserDataFromReq(req);
-  res.json( await Booking.find({user:userData.id}).populate('place') );
+  res.json(await Booking.find({ user: userData.id }).populate("place"));
 });
 
 app.listen(4000);

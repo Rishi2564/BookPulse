@@ -33,7 +33,7 @@ const PlaceGallery = ({place}) => {
               <div key={index}>
                 <img
                   className=" w-full max-w-3xl mx-auto aspect-square object-cover rounded-lg"
-                  src={"http://localhost:4000/uploads/" + photo}
+                  src={import.meta.env.VITE_API_BASE_URL+"/uploads/" + photo}
                   alt=""
                 />
               </div>
@@ -51,7 +51,7 @@ const PlaceGallery = ({place}) => {
             <div>
               <img onClick={()=>setShowAllPhotos(true)}
                 className="w-full aspect-square object-cover cursor-pointer"
-                src={`http://localhost:4000/uploads/${place.photos[0]}`}
+                src={import.meta.env.VITE_API_BASE_URL+`/uploads/${place.photos[0]}`}
                 alt="Main"
               />
             </div>
@@ -61,14 +61,14 @@ const PlaceGallery = ({place}) => {
               {place.photos[1] && (
                 <img onClick={()=>setShowAllPhotos(true)}
                  cursor-pointer  className="w-full aspect-square object-cover cursor-pointer"
-                  src={`http://localhost:4000/uploads/${place.photos[1]}`}
+                  src={import.meta.env.VITE_API_BASE_URL+`/uploads/${place.photos[1]}`}
                   alt="Secondary 1"
                 />
               )}
               {place.photos[2] && (
                 <img onClick={()=>setShowAllPhotos(true)}
                   className="w-full aspect-square object-cover cursor-pointer"
-                  src={`http://localhost:4000/uploads/${place.photos[2]}`}
+                  src={import.meta.env.VITE_API_BASE_URL+`/uploads/${place.photos[2]}`}
                   alt="Secondary 2"
                 />
               )}

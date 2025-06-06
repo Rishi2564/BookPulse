@@ -19,7 +19,7 @@ const BookingPage = () => {
     }
   }, [id]);
   if (!booking) {
-    return "";
+    return '';
   }
   return (
     <div className="my-8">

@@ -8,7 +8,7 @@ const PlaceImg = ({place, index=0, className=null}) => {
         className= 'object-cover';
     }
   return (
-    <img className={className} src={"http://localhost:4000/uploads/" + place.photos[index]}
+    <img className={className} src={import.meta.env.VITE_API_BASE_URL+"/uploads/" + place.photos[index]}
                 alt=""
               />
   )
